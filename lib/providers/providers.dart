@@ -26,14 +26,14 @@ Future<List<Map<String,dynamic>>>GCs(GCsRef ref)async{
 }
 
 @Riverpod(keepAlive: true)
-Future<List<Map<String,dynamic>>>IPs(IPsRef ref)async{
-  final data = await getZoho('select First_Name, Last_Name, Wechat_Group_Name, Wechat_Alias from Intended_Parents where (Wechat_Group_Name is not null)');
+Future<List<Map<String,dynamic>>>IPs(IPsRef ref,bool containWC)async{
+  final data = await getZoho('select First_Name, Last_Name, Wechat_Group_Name, Wechat_Alias from Intended_Parents where (Wechat_Group_Name is${containWC?' not':''} null)');
   return data['data'].cast<Map<String,dynamic>>();
 }
 
 @Riverpod(keepAlive: true)
-Future<List<Map<String,dynamic>>>middleMen(MiddleMenRef ref)async{
-  final data = await getZoho('select Name, Wechat_Group_Name, Wechat_Alias from MiddleMen where (Wechat_Group_Name is not null)');
+Future<List<Map<String,dynamic>>>middleMen(MiddleMenRef ref,bool containWC)async{
+  final data = await getZoho('select Name, Wechat_Group_Name, Wechat_Alias from MiddleMen where (Wechat_Group_Name is${containWC?' not':''} null)');
   return data['data'].cast<Map<String,dynamic>>();
 }
 

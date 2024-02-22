@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pc_wechat_manager/providers/providers.dart';
-import 'package:pc_wechat_manager/screens/overview.dart';
+import 'package:pc_wechat_manager/screens/overview/overview.dart';
 import 'package:pc_wechat_manager/screens/sign_in.dart';
 
 import 'firebase_options.dart';

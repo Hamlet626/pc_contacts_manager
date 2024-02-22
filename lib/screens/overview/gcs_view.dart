@@ -1,0 +1,105 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:pc_wechat_manager/providers/providers.dart';
+import 'package:url_launcher/url_launcher_string.dart';
+
+import 'groups_dialog.dart';
+
+class GCsView extends HookConsumerWidget {
+  final ValueNotifier<List<String>>? selector;
+  final Map<String,dynamic>? dtbGroup;
+  const GCsView({this.selector,this.dtbGroup,super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final searchQry=useState('');
+    final debouncedInput = useDebounced(
+      searchQry.value,
+      const Duration(milliseconds: 500), // Set your desired timeout
+    )?.toLowerCase();
+
+    final teamsFilter=useState(<String>{});
+
+    final gcs=ref.watch(gCsProvider).value?.where((e) =>
+    '${e['First_Name']} ${e['Last_Name']}'.toLowerCase().contains(debouncedInput??'')&&
+        (teamsFilter.value.isEmpty||teamsFilter.value.contains(e['team']))
+    ).toList();
+
+    final dbData=ref.watch(disburseDataProvider).value?.docs;
+
+    final tt=Theme.of(context).textTheme;
+    final cs=Theme.of(context).colorScheme;
+    final list = gcs!=null?ListView.separated(
+      shrinkWrap: true,
+      itemBuilder: (context, i) {
+        final dbMatches=dbData?.where((e) => e.id==gcs[i]['id']).toList();
+        final gcDbData=dbMatches==null||dbMatches.isEmpty?null:dbMatches[0];
+        final distributed=(gcDbData?.data()['distributed'] as List<dynamic>?)?.cast<String>();
+        final requested=(gcDbData?.data()['requested'] as List<dynamic>?)?.cast<String>();
+
+        final title=Text.rich(TextSpan(text: '${gcs[i]['First_Name']} ${gcs[i]['Last_Name']}',
+            children: [TextSpan(text:'(${gcs[i]['team']})',style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer))]));
+
+        final subtitle=Text.rich(TextSpan(text: '${gcs[i]['Match_Grade']??' '}   ',children: [
+          if(distributed?.isNotEmpty==true)TextSpan(text:'${distributed!.length} distributed   '),
+          if(requested?.isNotEmpty==true)TextSpan(text:'${requested!.length} requested'),
+        ]));
+
+        if(selector!=null) {
+          final alreadyDtb=distributed?.contains(dtbGroup!['topic'])==true;
+
+          return CheckboxListTile(
+            enabled: !alreadyDtb,tristate: alreadyDtb,
+            value: alreadyDtb?null:selector!.value.contains(gcs[i]['id']),
+            onChanged: (v)=>selector!.value=List.of(v==true?
+            (selector!.value..add(gcs[i]['id'])):(selector!.value..remove(gcs[i]['id']))),
+            title: title,
+            subtitle: subtitle,
+          );
+        } else {
+          return ExpansionTile(
+            leading: dbData==null?const Icon(null):
+            gcDbData==null?const Icon(Icons.circle):
+            gcDbData.data()['hold task']==null?const Icon(null):
+            const Icon(Icons.stop_circle,color: Colors.redAccent,),
+
+            title: InkWell(child: title,onTap: ()=>launchUrlString('https://crm.zoho.com/crm/patriots/tab/Leads/${gcs[i]['id']}'),),
+            subtitle: subtitle,
+            trailing: TextButton(onPressed: ()=>showDialog(context: context, builder: (contaxt)=>WcGroupDialog(gc:gcs[i])),
+                child: const Text('Distribute')),
+            children: [
+              if(distributed?.isNotEmpty==true)Row(children: [
+                const Text('Distributed to:'),
+                Expanded(child: Text(distributed!.join(', ')))
+              ],),
+              if(gcDbData?.data()['holdBy']!=null)
+                Align(alignment: Alignment.centerLeft,child: Text('Hold by: ${gcDbData?.data()['holdBy']}')),
+              if(requested?.isNotEmpty==true)Row(children: [
+                const Text('Currently Requested by:'),
+                Expanded(child: Text(requested!.join(', ')))
+              ],),
+            ].expand((e) => [e,const SizedBox(height: 8)]).toList(),
+          );}
+      },
+      separatorBuilder: (context, i)=>const Divider(),
+      itemCount: gcs.length,
+    ):const Center(child: CircularProgressIndicator());
+
+    return Column(children: [
+      TextField(onChanged: (v)=>searchQry.value=v,),
+      Wrap(children: [...teams.keys,'unknown'].map((e) => SizedBox(
+          width: 160,
+          child:
+          CheckboxListTile(
+              title: Text(e),
+              value: teamsFilter.value.contains(e),
+              onChanged: (v){
+                final l=Set.of(teamsFilter.value);
+                teamsFilter.value=v!?{...l,e}:(l..remove(e));
+              }))).toList()
+      ),
+      Flexible(child: list)
+    ],);
+  }
+}
