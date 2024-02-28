@@ -48,11 +48,12 @@ class GCsView extends HookConsumerWidget {
 
         if(selector!=null) {
           final alreadyDtb=distributed?.contains(dtbGroup!['topic'])==true;
-
+          final selected=selector!.value.contains(gcs[i]['id']);
           return CheckboxListTile(
-            enabled: !alreadyDtb,tristate: alreadyDtb,
-            value: alreadyDtb?null:selector!.value.contains(gcs[i]['id']),
-            onChanged: (v)=>selector!.value=List.of(v==true?
+            // enabled: !alreadyDtb,
+            tristate: alreadyDtb,
+            value: selected?true:alreadyDtb?null:false,
+            onChanged: (v)=>selector!.value=List.of(!selected?
             (selector!.value..add(gcs[i]['id'])):(selector!.value..remove(gcs[i]['id']))),
             title: title,
             subtitle: subtitle,

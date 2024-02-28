@@ -53,11 +53,12 @@ class WcGroupsView extends HookConsumerWidget {
 
         if(selector!=null) {
           final alreadyDtb=distributed!=null&&distributed.any((e) => e.id==dtbGC!['id']);
-
+          final selected=selector!.value.contains(groups[i]['topic']);
           return CheckboxListTile(
-            enabled: !alreadyDtb,tristate: alreadyDtb,
-            value: alreadyDtb?null:selector!.value.contains(groups[i]['topic']),
-            onChanged: (v)=>selector!.value=List.of(v==true?
+            // enabled: !alreadyDtb,
+            tristate: alreadyDtb,
+            value: selected?true:alreadyDtb?null:false,
+            onChanged: (v)=>selector!.value=List.of(!selected?
             (selector!.value..add(groups[i]['topic'])):(selector!.value..remove(groups[i]['topic']))),
             title: Text(groups[i]['topic']),
             subtitle: subtitle,

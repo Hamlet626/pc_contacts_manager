@@ -21,22 +21,24 @@ class GcDialog extends HookConsumerWidget {
           width: 400,
           child:GCsView(selector: selector,dtbGroup: group,)),
       actions: [
-        TextButton(onPressed: loading.value?null:()async{
+        TextButton(onPressed: selector.value.isEmpty||loading.value?null:()async{
           loading.value=true;
           //todo: send api /gc
 
           final res=await Future.wait(selector.value.map((gcid)async{
             try{
-              final distRes=await post(Uri.parse('https://us-central1-pc-application-portal.cloudfunctions.net/distrGcProfile'),
+              final distRes=await post(Uri.parse('https://us-central1-pc-application-portal.cloudfunctions.net/distributeGcProfile'),
                   headers: {'cKey': 'hamlet','Content-Type': 'application/json'},
                   body: json.encode({
-                    'gcId':'https://www.zohoapis.com/crm/v3/coql',
+                    'gcId':gcid,
                     'groups':[group['topic']],
                     'updateFirebase':true
                   }));
               return json.decode(distRes.body)['success_groups']!=null;
-            }catch(e,st){return false;}
+            }catch(e,st){
+              return false;}
           }));
+
           if(res.every((e) => e)) {
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -50,7 +52,7 @@ class GcDialog extends HookConsumerWidget {
                     (List.generate(res.length, (i) => res[i]?null:selector.value[i])..removeWhere((v)=>v==null)).join(', ')
                 } failed!')));
           }
-        }, child: const Text('Confirm'))
+        }, child: Text('${selector.value.isEmpty?'':'${selector.value.length} distributes'} Confirm'))
       ],
     );
   }

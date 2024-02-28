@@ -21,7 +21,7 @@ class WcGroupDialog extends HookConsumerWidget {
           width: 400,
           child:WcGroupsView(selector: selector,dtbGC: gc,)),
       actions: [
-        TextButton(onPressed: loading.value?null:()async{
+        TextButton(onPressed: selector.value.isEmpty||loading.value?null:()async{
           loading.value=true;
           //todo: send api /gc
           late Map<String,dynamic> data;
@@ -49,7 +49,7 @@ class WcGroupDialog extends HookConsumerWidget {
               duration: Duration(seconds: 30),
               backgroundColor: success?Colors.greenAccent:Colors.red,
               content: Text(data['message'],)));
-        }, child: const Text('Confirm'))
+        }, child: Text('${selector.value.isEmpty?'':'${selector.value.length} distributes'} Confirm'))
       ],
     );
   }

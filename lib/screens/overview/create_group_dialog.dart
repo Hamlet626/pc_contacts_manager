@@ -28,9 +28,9 @@ class CreateGroupDialog extends HookConsumerWidget {
           TextField(controller:tc, decoration: InputDecoration(labelText: 'Group Name'),),
           SizedBox(height: 16,),
           Row(children: [
-            _CRMDropDown(ips,ipSelected,tc,['First_Name', 'Last_Name']),
+            _CRMDropDown(ips,ipSelected,tc,['First_Name', 'Last_Name'],'IP'),
             SizedBox(width: 16,),
-            _CRMDropDown(mds,mdSelected,tc,['Name']),
+            _CRMDropDown(mds,mdSelected,tc,['Name'],'MdMen'),
           ],),
         ])),
       // shape: RoundedRectangleBorder(
@@ -70,15 +70,15 @@ class CreateGroupDialog extends HookConsumerWidget {
   }
 
   _CRMDropDown(List<Map<String,dynamic>> items,ValueNotifier<Map<String,dynamic>?> selected,
-      TextEditingController tc,List<String>nameKeys)=>
+      TextEditingController tc,List<String>nameKeys,String label)=>
       Flexible(child: DropdownSearch(
-    popupProps: PopupProps.dialog(showSearchBox: true),
+    popupProps: const PopupProps.dialog(showSearchBox: true),
     clearButtonProps: ClearButtonProps(isVisible: selected.value!=null),
     items: items,selectedItem: selected.value,
     itemAsString: (md)=>[...nameKeys, 'Wechat_Group_Name', 'Wechat_Alias']
         .map((e) => md[e]).join(' '),
-    dropdownDecoratorProps: const DropDownDecoratorProps(
-      dropdownSearchDecoration: InputDecoration(labelText: "Link with CRM MdMen"),
+    dropdownDecoratorProps: DropDownDecoratorProps(
+      dropdownSearchDecoration: InputDecoration(labelText: "Link with CRM $label"),
     ),
     dropdownBuilder: (context, md)=>md==null?const SizedBox():Row(children: [
       Expanded(child: Text(nameKeys.map((e) => md[e]).join(' '))),
