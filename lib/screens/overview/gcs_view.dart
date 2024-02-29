@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pc_wechat_manager/providers/providers.dart';
+import 'package:pc_wechat_manager/screens/meetings.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import 'groups_dialog.dart';
@@ -80,6 +81,7 @@ class GCsView extends HookConsumerWidget {
                 const Text('Currently Requested by:'),
                 Expanded(child: Text(requested!.join(', ')))
               ],),
+              FilledButton(onPressed: ()=>MeetingAdder.show(context,gc: gcs[i]), child: const Text('Add Meeting'))
             ].expand((e) => [e,const SizedBox(height: 8)]).toList(),
           );}
       },

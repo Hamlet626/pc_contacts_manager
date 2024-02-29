@@ -7,6 +7,7 @@ import 'package:pc_wechat_manager/providers/providers.dart';
 import 'package:pc_wechat_manager/screens/overview/wechaty_login.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+import '../meetings.dart';
 import 'gcs_dialog.dart';
 
 class WcGroupsView extends HookConsumerWidget {
@@ -81,6 +82,7 @@ class WcGroupsView extends HookConsumerWidget {
               if(distributed?.isNotEmpty==true)_fbGcsDetail('Distributed: ',distributed!,gcs),
               if(holding?.isNotEmpty==true)_fbGcsDetail('Holding: ',holding!,gcs),
               if(requested?.isNotEmpty==true)_fbGcsDetail('Requesting: ',requested!,gcs),
+              FilledButton(onPressed: ()=>MeetingAdder.show(context,group: groups[i]), child: const Text('Add Meeting'))
             ].expand((e) => [e,const SizedBox(height: 8)]).toList(),
           );
         }
