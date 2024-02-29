@@ -16,9 +16,9 @@ class OverviewScreen extends HookConsumerWidget {
         _buildView('All Matching GCs',const GCsView(),tt),
         const SizedBox(width: 30,),
         _buildView('All Wechat Groups',const WcGroupsView(),tt,
-            action: FilledButton(
+            action: FilledButton.icon(
                 onPressed: ()=>showDialog(context: context, builder: (context)=>const CreateGroupDialog()),
-                child: const Text('Create'))),
+                icon: const Icon(Icons.add), label: const Text('New'))),
       ],)),);
   }
 

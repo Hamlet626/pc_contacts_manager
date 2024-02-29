@@ -23,55 +23,66 @@ class MeetingAdder extends HookConsumerWidget {
     final groups=ref.watch(wcGroupsProvider).value??[];
 
     final selectedGC=useState<String?>(gc?['id']);
-    final portalGCId=selectedGC.value==null?null:useFuture(useMemoized(
-            () => FirebaseFirestore.instance.collection('u').where('rid',isEqualTo: selectedGC.value).get().then((v){
+    final portalGCId=useFuture(useMemoized(
+            () => selectedGC.value==null?null:FirebaseFirestore.instance.collection('u').where('rid',isEqualTo: selectedGC.value).get().then((v){
               if(v.size==0)throw 'GC not found on Portal, contact Hamlet with: rid:${selectedGC.value}';
               f.currentState?.patchValue({'title':"${v.docs[0].data()['name']}'s Match Meeting"});
               return v.docs[0].id;
             }),[selectedGC.value]));
 
+
     final loading=useState(false);
 
 
-    return BottomSheet(onClosing: (){}, builder: (context)=>FormBuilder(
+    return BottomSheet(onClosing: (){}, enableDrag: false,
+        // animationController: BottomSheet.createAnimationController(useSingleTickerProvider(keys: [selectedGC.value,portalGCId])),
+        builder: (context)=>Padding(padding: const EdgeInsets.symmetric(horizontal: 32),child: FormBuilder(
         key:f,
         initialValue: {
           if(gc!=null)'to':gc,
           if(group!=null)'wechat_group':group
         },
-        child: Column(children: [
-          DropDownSearchField(name: 'to', label: 'label', items: gcs,
-            itemAsString: (gc)=>'${gc['First_Name']} ${gc['Last_Name']}',),
+        child: ListView(children: [
+          Text('Add Meeting',style: Theme.of(context).textTheme.titleLarge,),
+          const SizedBox(height: 16,),
+          DropDownSearchField(name: 'to', label: 'GC', items: gcs,
+            itemAsString: (gc)=>'${gc['First_Name']} ${gc['Last_Name']}',
+            onChanged: (v)=>selectedGC.value=v?['id'],
+          ),
 
-          if(portalGCId!=null)portalGCId.hasError?Text('${portalGCId.error}'):
+          if(selectedGC.value!=null)portalGCId.hasError?Text('${portalGCId.error}'):
           portalGCId.hasData?Container():const LinearProgressIndicator(),
 
-          Divider(),
+          const SizedBox(height: 16,),
           FormBuilderTextField(name: 'title',
             validator: (v)=>v==null?'Please select a value':null,
-            decoration:const InputDecoration(labelText: 'Title (show GC'),),
+            decoration:const InputDecoration(labelText: 'Title (show GC)'),),
 
           DropDownSearchField(name: 'wechat_group', label: 'Wechat Group', items: groups,
             itemAsString: (group)=>group['topic'],),
           FormBuilderDateTimePicker(name: 'start',
-            decoration:const InputDecoration(labelText: 'Start Time (show GC'),
+            valueTransformer: (v)=>v?.millisecondsSinceEpoch,
+            decoration:const InputDecoration(labelText: 'Start Time (show GC)'),
             validator: (v)=>v==null?'Please select a value':null,),
           FormBuilderTextField(name: 'description',
-            decoration:const InputDecoration(labelText: 'Description (show GC'),
+            decoration:const InputDecoration(labelText: 'Description (show GC)'),
             maxLines: 3,),
 
-          TextButton(onPressed: loading.value||portalGCId?.data==null?null:(){
-            if(!f.currentState!.saveAndValidate()||portalGCId?.data==null)return;
+          const SizedBox(height: 24,),
+          TextButton(onPressed: loading.value||portalGCId.data==null?null:()async{
+            if(!f.currentState!.saveAndValidate()||portalGCId.data==null)return;
             loading.value=true;
             final data=f.currentState!.value;
-            FirebaseFirestore.instance.collection('/classes/m/data').add({
+            await FirebaseFirestore.instance.collection('/classes/m/data').add({
               ...data,
-              'to':portalGCId!.data,
+              'to':portalGCId.data,
               'wechat_group':data['wechat_group']['topic'],
-              'type':2, 'stage':0
+              'type':2, 'stage':0,
+              'others':[]
             });
+            Navigator.pop(context);
             }, child: const Text('Create'))
-        ],)));
+        ],))));
   }
 }
 
@@ -96,7 +107,7 @@ class DropDownSearchField<T> extends StatelessWidget {
       items: items,
       itemAsString: itemAsString,
       dropdownDecoratorProps: DropDownDecoratorProps(
-        dropdownSearchDecoration: InputDecoration(labelText: label),
+        dropdownSearchDecoration: InputDecoration(labelText: label, errorText: field.errorText),
       ),
       dropdownBuilder: dropdownBuilder,
       onChanged: (v){field.didChange(v);

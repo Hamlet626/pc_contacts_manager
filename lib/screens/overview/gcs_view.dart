@@ -42,10 +42,11 @@ class GCsView extends HookConsumerWidget {
         final title=Text.rich(TextSpan(text: '${gcs[i]['First_Name']} ${gcs[i]['Last_Name']}',
             children: [TextSpan(text:'(${gcs[i]['team']})',style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer))]));
 
-        final subtitle=Text.rich(TextSpan(text: '${gcs[i]['Match_Grade']??' '}   ',children: [
-          if(distributed?.isNotEmpty==true)TextSpan(text:'${distributed!.length} distributed   '),
-          if(requested?.isNotEmpty==true)TextSpan(text:'${requested!.length} requested'),
-        ]));
+        final subtitle=Row(children: [
+          if(gcs[i]['Match_Grade']!=null)Text('${gcs[i]['Match_Grade']}   '),
+          if(distributed?.isNotEmpty==true)ActionChip(label:Text('${distributed!.length} distributed   ')),
+          if(requested?.isNotEmpty==true)ActionChip(label:Text('${requested!.length} requested')),
+        ]);
 
         if(selector!=null) {
           final alreadyDtb=distributed?.contains(dtbGroup!['topic'])==true;
@@ -68,8 +69,8 @@ class GCsView extends HookConsumerWidget {
 
             title: InkWell(child: title,onTap: ()=>launchUrlString('https://crm.zoho.com/crm/patriots/tab/Leads/${gcs[i]['id']}'),),
             subtitle: subtitle,
-            trailing: TextButton(onPressed: ()=>showDialog(context: context, builder: (contaxt)=>WcGroupDialog(gc:gcs[i])),
-                child: const Text('Distribute')),
+            // trailing: TextButton(onPressed: ()=>showDialog(context: context, builder: (contaxt)=>WcGroupDialog(gc:gcs[i])),
+            //     child: const Text('Distribute')),
             children: [
               if(distributed?.isNotEmpty==true)Row(children: [
                 const Text('Distributed to:'),
@@ -81,7 +82,11 @@ class GCsView extends HookConsumerWidget {
                 const Text('Currently Requested by:'),
                 Expanded(child: Text(requested!.join(', ')))
               ],),
-              FilledButton(onPressed: ()=>MeetingAdder.show(context,gc: gcs[i]), child: const Text('Add Meeting'))
+              Row(mainAxisAlignment:MainAxisAlignment.end, children: [
+                TextButton(onPressed: ()=>showDialog(context: context, builder: (contaxt)=>WcGroupDialog(gc:gcs[i])),
+                    child: const Text('Distribute')),
+                FilledButton(onPressed: ()=>MeetingAdder.show(context,gc: gcs[i]), child: const Text('Add Meeting'))
+              ],)
             ].expand((e) => [e,const SizedBox(height: 8)]).toList(),
           );}
       },

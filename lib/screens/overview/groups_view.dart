@@ -76,13 +76,17 @@ class WcGroupsView extends HookConsumerWidget {
 
             subtitle: subtitle,
 
-            trailing: TextButton(onPressed: ()=>showDialog(context: context, builder: (contaxt)=>GcDialog(group:groups[i])),
-                child: const Text('Distribute')),
+            // trailing: TextButton(onPressed: ()=>showDialog(context: context, builder: (contaxt)=>GcDialog(group:groups[i])),
+            //     child: const Text('Distribute')),
             children: [
               if(distributed?.isNotEmpty==true)_fbGcsDetail('Distributed: ',distributed!,gcs),
               if(holding?.isNotEmpty==true)_fbGcsDetail('Holding: ',holding!,gcs),
               if(requested?.isNotEmpty==true)_fbGcsDetail('Requesting: ',requested!,gcs),
-              FilledButton(onPressed: ()=>MeetingAdder.show(context,group: groups[i]), child: const Text('Add Meeting'))
+              Row(mainAxisAlignment:MainAxisAlignment.end, children: [
+                TextButton(onPressed: ()=>showDialog(context: context, builder: (contaxt)=>GcDialog(group:groups[i])),
+                    child: const Text('Distribute')),
+                FilledButton(onPressed: ()=>MeetingAdder.show(context,group: groups[i]), child: const Text('Add Meeting'))
+              ],)
             ].expand((e) => [e,const SizedBox(height: 8)]).toList(),
           );
         }
@@ -104,10 +108,11 @@ class WcGroupsView extends HookConsumerWidget {
         final crmGCIndex=gcsCrmData.indexWhere((crmGC) => crmGC['id']==fbGC.id);
         return TextSpan(text: crmGCIndex==-1?'Unknown GC':
         '${gcsCrmData[crmGCIndex]['First_Name']} ${gcsCrmData[crmGCIndex]['Last_Name']}',
+            style: const TextStyle(decoration: TextDecoration.underline),
             recognizer: TapGestureRecognizer()
               ..onTap = () =>launchUrlString('https://crm.zoho.com/crm/patriots/tab/Leads/${fbGC.id}')
         );
-      }).toList())))
+      }).expand((e) => [e, const TextSpan(text: ',  ')]).toList())))
     ],);
   }
 }
