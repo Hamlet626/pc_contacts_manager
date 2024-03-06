@@ -10,6 +10,8 @@ import 'package:pc_wechat_manager/providers/providers.dart';
 class CreateGroupDialog extends HookConsumerWidget {
   const CreateGroupDialog({super.key});
 
+  static final GCsRecRegex=RegExp(r'^https://crm\.zoho\.com/crm/patriots/tab/Potentials/\d+$');
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
 
@@ -17,6 +19,8 @@ class CreateGroupDialog extends HookConsumerWidget {
     final mds=ref.watch(middleMenProvider(false)).value??[];
 
     final tc=useTextEditingController();
+    final gctc=useTextEditingController();
+    final gcErrorText=useState<String?>(null);
     final ipSelected=useState<Map<String,dynamic>?>(null);
     final mdSelected=useState<Map<String,dynamic>?>(null);
 
@@ -25,20 +29,25 @@ class CreateGroupDialog extends HookConsumerWidget {
     return AlertDialog(title: Text('New Group'),
         content: ConstrainedBox(constraints: BoxConstraints(minWidth: 500),
             child: Column(mainAxisSize:MainAxisSize.min,children: [
-          TextField(controller:tc, decoration: InputDecoration(labelText: 'Group Name'),),
-          SizedBox(height: 16,),
-          Row(children: [
-            _CRMDropDown(ips,ipSelected,tc,['First_Name', 'Last_Name'],'IP'),
-            SizedBox(width: 16,),
-            _CRMDropDown(mds,mdSelected,tc,['Name'],'MdMen'),
-          ],),
+              TextField(controller:tc, decoration: InputDecoration(labelText: 'Group Name *'),),
+              SizedBox(height: 32,),
+              Row(children: [
+                _CRMDropDown(ips,ipSelected,tc,['First_Name', 'Last_Name'],'IP'),
+                SizedBox(width: 16,),
+                _CRMDropDown(mds,mdSelected,tc,['Name'],'MdMen'),
+              ],),
+              TextField(controller:gctc, onChanged: (v){
+                gcErrorText.value=v.isNotEmpty&&!GCsRecRegex.hasMatch(v)?'Invalid CRM GCs Link':null;
+              }, decoration: InputDecoration(labelText: "Link with CRM GC (as Case Group)", errorText: gcErrorText.value,
+                  hintText: "paste GCs' CRM link here, to link the group with CRM GC",
+              ),),
         ])),
       // shape: RoundedRectangleBorder(
       //     borderRadius:
       //     BorderRadius.all(
       //         Radius.circular(10.0))),
       actions: [
-        TextButton(onPressed: ()async{
+        TextButton(onPressed: loading.value?null:()async{
           if(tc.text.isNotEmpty!=true)return;
           loading.value=true;
           final roomRes=await post(Uri.parse('https://pcbackend-egozmxid3q-uw.a.run.app/wct/createGroup'),
@@ -52,6 +61,8 @@ class CreateGroupDialog extends HookConsumerWidget {
               }));
           if(roomRes.statusCode==200){
             final crmRes=await Future.wait([
+              if(gctc.text.isNotEmpty&&GCsRecRegex.hasMatch(gctc.text))
+                zohoUpdateRecWc('Deals', gctc.text.split('/').last, tc.text),
               if(ipSelected.value!=null)zohoUpdateRecWc('Intended_Parents', ipSelected.value!['id'], tc.text),
               if(mdSelected.value!=null)zohoUpdateRecWc('MiddleMen', mdSelected.value!['id'], tc.text),
             ]);
