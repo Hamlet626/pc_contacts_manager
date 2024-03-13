@@ -54,8 +54,11 @@ class CreateGroupDialog extends HookConsumerWidget {
               headers: {'wcKey': 'hamlet','Content-Type': 'application/json'},
               body: json.encode({
                 'topic':tc.text,
-                'ids':['7881302871304371',//yuna
-                  '7881302089909614'//jim
+                'ids':[
+                  // '7881302871304371',//yuna
+                  // '7881302089909614',//jim
+                  '7881299801162135',//cindy
+                  '7881301769316343',//raye
                   // '7881300822021046'//big poppa
                 ],
               }));
