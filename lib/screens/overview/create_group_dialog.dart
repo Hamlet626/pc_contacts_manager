@@ -86,7 +86,7 @@ class CreateGroupDialog extends HookConsumerWidget {
   _CRMDropDown(List<Map<String,dynamic>> items,ValueNotifier<Map<String,dynamic>?> selected,
       TextEditingController tc,List<String>nameKeys,String label)=>
       Flexible(child: DropdownSearch(
-    popupProps: const PopupProps.dialog(showSearchBox: true),
+    popupProps: const PopupProps.dialog(showSearchBox: true,searchDelay: Duration.zero),
     clearButtonProps: ClearButtonProps(isVisible: selected.value!=null),
     items: items,selectedItem: selected.value,
     itemAsString: (md)=>[...nameKeys, 'Wechat_Group_Name', 'Wechat_Alias']
