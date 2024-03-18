@@ -35,7 +35,7 @@ class WcGroupDialog extends HookConsumerWidget {
                 }));
             data=json.decode(distRes.body);
           }catch(e,st){
-            data={'message':'Send profile error!'};
+            data={'message':'Send profile error!\n$e'};
           }
 
           final success=data['success_groups']!=null&&data['success_groups'].length==selector.value.length;
