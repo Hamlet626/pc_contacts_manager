@@ -47,9 +47,12 @@ class WcGroupsView extends HookConsumerWidget {
         final requested=dbData?.where((e) => (e.data()['requested']??[]).contains(groups[i]['topic']));
 
         final subtitle=Row(children: [
-          if(distributed?.isNotEmpty==true)ActionChip(label:Text('${distributed!.length} distributed')),
-          if(holding?.isNotEmpty==true)ActionChip(label:Text('${holding!.length} Holding')),
-          if(requested?.isNotEmpty==true)ActionChip(label:Text('${requested!.length} requested')),
+          if(distributed?.isNotEmpty==true)ActionChip(onPressed: (){},
+              label:Text('${distributed!.length} distributed')),
+          if(holding?.isNotEmpty==true)ActionChip(onPressed: (){},
+              label:Text('${holding!.length} Holding')),
+          if(requested?.isNotEmpty==true)ActionChip(onPressed: (){},
+              label:Text('${requested!.length} requested')),
         ]);
 
         if(selector!=null) {
@@ -66,6 +69,7 @@ class WcGroupsView extends HookConsumerWidget {
           );
         } else {
           return ExpansionTile(
+            expandedCrossAxisAlignment: CrossAxisAlignment.start,
             leading: mdMatch?.isNotEmpty==true?CircleAvatar(child: Text('MD'),):
             ipMatch?.isNotEmpty==true?CircleAvatar(child: Text('IP'),):Icon(null),
 

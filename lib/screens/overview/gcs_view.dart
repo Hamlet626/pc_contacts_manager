@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:http/http.dart';
 import 'package:pc_wechat_manager/providers/providers.dart';
 import 'package:pc_wechat_manager/screens/meetings.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -28,6 +31,7 @@ class GCsView extends HookConsumerWidget {
     ).toList();
 
     final dbData=ref.watch(disburseDataProvider).value?.docs;
+    final unholding=useState(false);
 
     final tt=Theme.of(context).textTheme;
     final cs=Theme.of(context).colorScheme;
@@ -44,8 +48,12 @@ class GCsView extends HookConsumerWidget {
 
         final subtitle=Row(children: [
           if(gcs[i]['Match_Grade']!=null)Text('${gcs[i]['Match_Grade']}   '),
-          if(distributed?.isNotEmpty==true)ActionChip(label:Text('${distributed!.length} distributed   ')),
-          if(requested?.isNotEmpty==true)ActionChip(label:Text('${requested!.length} requested')),
+          if(distributed?.isNotEmpty==true)ActionChip(onPressed: (){},
+              label:Text('${distributed!.length} distributed   ')),
+          if(gcDbData?.data()['holdBy']!=null)ActionChip(onPressed: (){},
+              label:Text('Hold:${gcDbData?.data()['holdBy']}')),
+          if(requested?.isNotEmpty==true)ActionChip(onPressed: (){},
+              label:Text('${requested!.length} requested')),
         ]);
 
         if(selector!=null) {
@@ -62,9 +70,10 @@ class GCsView extends HookConsumerWidget {
           );
         } else {
           return ExpansionTile(
+            expandedCrossAxisAlignment: CrossAxisAlignment.start,
             leading: dbData==null?const Icon(null):
             gcDbData==null?const Icon(Icons.circle):
-            gcDbData.data()['hold task']==null?const Icon(null):
+            gcDbData.data()['holdBy']==null?const Icon(null):
             const Icon(Icons.stop_circle,color: Colors.redAccent,),
 
             title: InkWell(child: title,onTap: ()=>launchUrlString('https://crm.zoho.com/crm/patriots/tab/Leads/${gcs[i]['id']}'),),
@@ -72,21 +81,26 @@ class GCsView extends HookConsumerWidget {
             // trailing: TextButton(onPressed: ()=>showDialog(context: context, builder: (contaxt)=>WcGroupDialog(gc:gcs[i])),
             //     child: const Text('Distribute')),
             children: [
-              if(distributed?.isNotEmpty==true)Row(children: [
-                const Text('Distributed to:'),
-                Expanded(child: Text(distributed!.join(', ')))
-              ],),
+              if(distributed?.isNotEmpty==true)...[
+                Text('Distributed to:'),
+                Text(distributed!.join(', '))
+              ],
+              Align(alignment: Alignment.centerRight,child: TextButton(onPressed: ()=>showDialog(context: context, builder: (contaxt)=>WcGroupDialog(gc:gcs[i])),
+                  child: const Text('Distribute')),),
+
               if(gcDbData?.data()['holdBy']!=null)
-                Align(alignment: Alignment.centerLeft,child: Text('Hold by: ${gcDbData?.data()['holdBy']}')),
-              if(requested?.isNotEmpty==true)Row(children: [
-                const Text('Currently Requested by:'),
-                Expanded(child: Text(requested!.join(', ')))
-              ],),
-              Row(mainAxisAlignment:MainAxisAlignment.end, children: [
-                TextButton(onPressed: ()=>showDialog(context: context, builder: (contaxt)=>WcGroupDialog(gc:gcs[i])),
-                    child: const Text('Distribute')),
-                FilledButton(onPressed: ()=>MeetingAdder.show(context,gc: gcs[i]), child: const Text('Add Meeting'))
-              ],)
+                Text('Hold by: ${gcDbData?.data()['holdBy']}'),
+              if(requested?.isNotEmpty==true)...[
+                Text('Currently Requested by:'),
+                Text(requested!.join(', '))
+              ],
+              if(gcDbData?.data()['holdBy']!=null)
+                Align(alignment: Alignment.centerRight,child: TextButton(
+                    onPressed: unholding.value?null:()=>unhold(context,unholding,gcDbData?.data()['holdBy'],gcs[i]),
+                    child: const Text('Un-hold')),),
+
+              Align(alignment: Alignment.centerRight,child: FilledButton(onPressed: ()=>MeetingAdder.show(context,gc: gcs[i]), child: const Text('Add Meeting'))
+              )
             ].expand((e) => [e,const SizedBox(height: 8)]).toList(),
           );}
       },
@@ -109,5 +123,29 @@ class GCsView extends HookConsumerWidget {
       ),
       Flexible(child: list)
     ],);
+  }
+
+  Widget leftText(String text)=>Align(alignment: Alignment.centerLeft,child:Text(text));
+
+  Future<void> unhold(BuildContext context,ValueNotifier<bool>unholding,String wcGroupName,Map<String,dynamic> gc)async{
+    unholding.value=true;
+
+    try{
+      await post(Uri.parse('https://us-central1-pc-application-portal.cloudfunctions.net/unHoldGcProfile'),
+          headers: {'cKey': 'hamlet','Content-Type': 'application/json'},
+          body: json.encode({
+            'gcId':gc['id'],
+            'wechatGroupName':wcGroupName,
+            'gcProfileName':gc['First_Name'].substring(0, 1).toUpperCase() +
+                gc['First_Name'].substring(1).toLowerCase(),
+            'state':gc['State'].toUpperCase(),
+          }));
+    }catch(e,st){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          duration: Duration(seconds: 30),
+          backgroundColor: Colors.red,
+          content: Text('Un-Hold failed: $e',)));
+    }
+    unholding.value=false;
   }
 }

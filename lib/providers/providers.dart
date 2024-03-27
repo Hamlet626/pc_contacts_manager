@@ -18,7 +18,7 @@ const teams={
 
 @Riverpod(keepAlive: true)
 Future<List<Map<String,dynamic>>>GCs(GCsRef ref)async{
-  final data = await getZoho("select First_Name, Last_Name, Match_Grade, On_Hold_By, Recruiter from Leads where (Lead_Status = 'Matching')");
+  final data = await getZoho("select First_Name, Last_Name, State, Match_Grade, On_Hold_By, Recruiter from Leads where (Lead_Status = 'Matching')");
   return (data['data'].cast<Map<String,dynamic>>() as List<Map<String,dynamic>>).map((gcRec){
     final teamN=teams.entries.where((e) => e.value.contains(gcRec['Recruiter']?['id']));
     return {...gcRec,'team':teamN.isEmpty?'unknown':teamN.first.key};
@@ -41,7 +41,7 @@ Future<List<Map<String,dynamic>>>middleMen(MiddleMenRef ref,bool containWC)async
 Future<List<Map<String,dynamic>>>wcGroups(WcGroupsRef ref)async{
   final res = await post(Uri.parse('https://pcbackend-egozmxid3q-uw.a.run.app/wct/findRoom'),
   headers: {'wcKey':'hamlet'});
-  print(res.body);
+
   if(res.statusCode==240)throw "user not logged in";
   return json.decode(res.body).cast<Map<String,dynamic>>();
 }

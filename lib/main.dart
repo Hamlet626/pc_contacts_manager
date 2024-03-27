@@ -27,6 +27,9 @@ class MyApp extends HookConsumerWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+          expansionTileTheme: ExpansionTileThemeData(
+            childrenPadding: EdgeInsets.symmetric(horizontal: 32),
+          )
       ),
       home: SelectionArea(child:authed?const OverviewScreen():const SignInScreen()),
     );
