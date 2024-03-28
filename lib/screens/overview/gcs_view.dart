@@ -135,8 +135,8 @@ class GCsView extends HookConsumerWidget {
           headers: {'cKey': 'hamlet','Content-Type': 'application/json'},
           body: json.encode({
             'gcId':gc['id'],
-            'wechatGroupName':wcGroupName,
-            'gcProfileName':gc['First_Name'].substring(0, 1).toUpperCase() +
+            'roomName':wcGroupName,
+            'gcName':gc['First_Name'].substring(0, 1).toUpperCase() +
                 gc['First_Name'].substring(1).toLowerCase(),
             'state':gc['State'].toUpperCase(),
           }));
