@@ -46,7 +46,7 @@ class WcGroupsView extends HookConsumerWidget {
         final holding=dbData?.where((e) => e.data()['holdBy']==groups[i]['topic']);
         final requested=dbData?.where((e) => (e.data()['requested']??[]).contains(groups[i]['topic']));
 
-        final subtitle=Row(children: [
+        final subtitle=Wrap(children: [
           if(distributed?.isNotEmpty==true)ActionChip(onPressed: (){},
               label:Text('${distributed!.length} distributed')),
           if(holding?.isNotEmpty==true)ActionChip(onPressed: (){},
@@ -100,7 +100,7 @@ class WcGroupsView extends HookConsumerWidget {
     ):const Center(child: CircularProgressIndicator());
 
     return Column(children: [
-      TextField(onChanged: (v)=>searchQry.value=v,),
+      TextField(onChanged: (v)=>searchQry.value=v,decoration: InputDecoration(prefixIcon: Icon(Icons.search)),),
       Flexible(child: list)
     ],);
   }
