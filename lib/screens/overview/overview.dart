@@ -17,8 +17,8 @@ class OverviewScreen extends HookConsumerWidget {
 
     return Scaffold(
       appBar: ismb?AppBar(
-        title: TabBar(controller: tc,
-            tabs: [Tab(text: 'Matching GCs',),Tab(text: 'Wechat Groups',)]),
+        title: TabBar(controller: tc,isScrollable:true, tabAlignment: TabAlignment.start,
+            tabs: [Tab(text: 'GCs',),Tab(text: 'Wechat Groups',)]),
         actions: [FilledButton.icon(
           onPressed: ()=>showDialog(context: context, builder: (context)=>const CreateGroupDialog()),
           icon: const Icon(Icons.add), label: const Text('WeChat Group'))

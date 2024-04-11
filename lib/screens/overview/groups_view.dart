@@ -46,7 +46,8 @@ class WcGroupsView extends HookConsumerWidget {
         final holding=dbData?.where((e) => e.data()['holdBy']==groups[i]['topic']);
         final requested=dbData?.where((e) => (e.data()['requested']??[]).contains(groups[i]['topic']));
 
-        final subtitle=Wrap(children: [
+        final subtitle=Wrap(crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
           if(distributed?.isNotEmpty==true)ActionChip(onPressed: (){},
               label:Text('${distributed!.length} distributed')),
           if(holding?.isNotEmpty==true)ActionChip(onPressed: (){},

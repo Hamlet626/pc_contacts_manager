@@ -46,7 +46,8 @@ class GCsView extends HookConsumerWidget {
         final title=Text.rich(TextSpan(text: '${gcs[i]['First_Name']} ${gcs[i]['Last_Name']}',
             children: [TextSpan(text:'(${gcs[i]['team']})',style: tt.bodySmall?.copyWith(color: cs.onPrimaryContainer))]));
 
-        final subtitle=Wrap(children: [
+        final subtitle=Wrap(crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
           if(gcs[i]['Match_Grade']!=null)Text('${gcs[i]['Match_Grade']}   '),
           if(distributed?.isNotEmpty==true)ActionChip(onPressed: (){},
               label:Text('${distributed!.length} distributed   ')),
