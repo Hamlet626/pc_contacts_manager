@@ -25,11 +25,13 @@ class CreateGroupDialog extends HookConsumerWidget {
     final mdSelected=useState<Map<String,dynamic>?>(null);
 
     final loading=useState(false);
+    final groupNameError=useState<String?>(null);
 
     return AlertDialog(title: Text('New Group'),
         content: ConstrainedBox(constraints: BoxConstraints(minWidth: 500),
             child: Column(mainAxisSize:MainAxisSize.min,children: [
-              TextField(controller:tc, decoration: InputDecoration(labelText: 'Group Name *'),),
+              TextField(controller:tc, decoration: InputDecoration(labelText: 'Group Name *',
+                  errorText: groupNameError.value),),
               SizedBox(height: 32,),
               Row(children: [
                 _CRMDropDown(ips,ipSelected,tc,['First_Name', 'Last_Name'],'IP'),
@@ -48,7 +50,12 @@ class CreateGroupDialog extends HookConsumerWidget {
       //         Radius.circular(10.0))),
       actions: [
         TextButton(onPressed: loading.value?null:()async{
-          if(tc.text.isNotEmpty!=true)return;
+          if(tc.text.isNotEmpty!=true){
+            groupNameError.value='Please enter a group name';
+            return;
+          }else {
+            groupNameError.value=null;
+          }
           loading.value=true;
           final roomRes=await post(Uri.parse('https://pcbackend-egozmxid3q-uw.a.run.app/wct/createGroup'),
               headers: {'wcKey': 'hamlet','Content-Type': 'application/json'},
@@ -61,6 +68,9 @@ class CreateGroupDialog extends HookConsumerWidget {
                   '7881301769316343',//raye
                   // '7881300822021046'//big poppa
                 ],
+                if((gctc.text.isNotEmpty&&GCsRecRegex.hasMatch(gctc.text))||
+                    ((mdSelected.value??(ipSelected.value))!=null))
+                  'announceType':mdSelected.value!=null?1:ipSelected.value!=null?2:0
               }));
           if(roomRes.statusCode==200){
             final crmRes=await Future.wait([
