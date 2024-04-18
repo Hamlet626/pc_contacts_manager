@@ -34,9 +34,9 @@ class CreateGroupDialog extends HookConsumerWidget {
                   errorText: groupNameError.value),),
               SizedBox(height: 32,),
               Row(children: [
-                _CRMDropDown(ips,ipSelected,tc,['First_Name', 'Last_Name'],'IP'),
+                _CRMDropDown(ips,ipSelected,tc,['First_Name', 'Last_Name'],'IP','客户群'),
                 SizedBox(width: 16,),
-                _CRMDropDown(mds,mdSelected,tc,['Name'],'MdMen'),
+                _CRMDropDown(mds,mdSelected,tc,['Name'],'MdMen','配单群'),
               ],),
               TextField(controller:gctc, onChanged: (v){
                 gcErrorText.value=v.isNotEmpty&&!GCsRecRegex.hasMatch(v)?'Invalid CRM GCs Link':null;
@@ -94,13 +94,13 @@ class CreateGroupDialog extends HookConsumerWidget {
   }
 
   _CRMDropDown(List<Map<String,dynamic>> items,ValueNotifier<Map<String,dynamic>?> selected,
-      TextEditingController tc,List<String>nameKeys,String label)=>
+      TextEditingController tc,List<String>nameKeys,String label,String suffix)=>
       Flexible(child: DropdownSearch(
     popupProps: const PopupProps.dialog(showSearchBox: true,searchDelay: Duration.zero),
     clearButtonProps: ClearButtonProps(isVisible: selected.value!=null),
     items: items,selectedItem: selected.value,
     itemAsString: (md)=>[...nameKeys, 'Wechat_Group_Name', 'Wechat_Alias']
-        .map((e) => md[e]).join(' '),
+        .map((e) => md[e]??'').join(' '),
     dropdownDecoratorProps: DropDownDecoratorProps(
       dropdownSearchDecoration: InputDecoration(labelText: "Link with CRM $label"),
     ),
@@ -110,7 +110,7 @@ class CreateGroupDialog extends HookConsumerWidget {
     ],),
     onChanged: (v){
       selected.value=v;
-      if(v!=null)tc.text='培恩-${v['Name']}-配单群';
+      if(v!=null)tc.text='培恩-${v[nameKeys.first]}-$suffix';
     },
   ));
 

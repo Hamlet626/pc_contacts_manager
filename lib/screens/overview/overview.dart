@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:pc_wechat_manager/screens/overview/create_group_dialog.dart';
+import 'package:pc_wechat_manager/screens/overview/update_announce_dialog.dart';
 import 'gcs_view.dart';
 import 'groups_view.dart';
 
@@ -21,7 +22,11 @@ class OverviewScreen extends HookConsumerWidget {
             tabs: [Tab(text: 'GCs',),Tab(text: 'Wechat Groups',)]),
         actions: [FilledButton.icon(
           onPressed: ()=>showDialog(context: context, builder: (context)=>const CreateGroupDialog()),
-          icon: const Icon(Icons.add), label: const Text('WeChat Group'))
+          icon: const Icon(Icons.add), label: const Text('WC Group')),
+          const SizedBox(width: 8,),
+          IconButton.filled(
+              onPressed: ()=>showDialog(context: context, builder: (context)=>const UpdateAnnounceDialog()),
+              icon: const Icon(Icons.announcement))
         ],):null,
       body: ismb?Padding(padding: EdgeInsets.only(top: 12),child: TabBarView(
           controller: tc,
@@ -30,18 +35,24 @@ class OverviewScreen extends HookConsumerWidget {
         _buildView('All Matching GCs',const GCsView(),tt),
         const SizedBox(width: 30,),
         _buildView('All Wechat Groups',const WcGroupsView(),tt,
-            action: FilledButton.icon(
+            action: [
+              FilledButton.icon(
                 onPressed: ()=>showDialog(context: context, builder: (context)=>const CreateGroupDialog()),
-                icon: const Icon(Icons.add), label: const Text('New'))),
+                icon: const Icon(Icons.add), label: const Text('New')),
+              const SizedBox(width: 8,),
+              IconButton.filled(
+                  onPressed: ()=>showDialog(context: context, builder: (context)=>const UpdateAnnounceDialog()),
+                  icon: const Icon(Icons.announcement))
+            ]),
       ],)),);
   }
 
-  _buildView(String title,Widget child,TextTheme tt, {Widget? action})=>Expanded(child:
+  _buildView(String title,Widget child,TextTheme tt, {List<Widget> action=const []})=>Expanded(child:
   Card(child:Column(children: [
     const SizedBox(height: 4,),
     Row(children: [
       Expanded(child: Center(child: Text(title,style: tt.headlineSmall))),
-      action??const SizedBox(),
+      ...action,
       const SizedBox(width: 8,),
     ],),
     Expanded(child: child)
