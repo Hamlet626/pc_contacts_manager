@@ -16,7 +16,7 @@ class CreateGroupDialog extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
 
     final ips=ref.watch(iPsProvider(false)).value??[];
-    final mds=ref.watch(middleMenProvider(false)).value??[];
+    final mds=ref.watch(middleMenProvider(true)).value??[];
 
     final tc=useTextEditingController();
     final gctc=useTextEditingController();
