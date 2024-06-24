@@ -35,7 +35,9 @@ class GcDialog extends HookConsumerWidget {
       ValueNotifier<List<String>>selector, List<Map<String,dynamic>>allgcs, bool withLogo)async{
     loading.value=true;
 
-    final res=await Future.wait(selector.value.map((gcid)async{
+    final res=[];
+    await Future.forEach(selector.value,(gcid)async{
+      var r;
       try{
         final distRes=await post(Uri.parse('https://us-central1-pc-application-portal.cloudfunctions.net/distributeGcProfile'),
             headers: {'cKey': 'hamlet','Content-Type': 'application/json'},
@@ -46,10 +48,11 @@ class GcDialog extends HookConsumerWidget {
               'logo':withLogo
             }));
         final jsonRes=json.decode(distRes.body);
-        return {'success':jsonRes['success_groups']!=null,'message':jsonRes['message']};
+        r = {'success':jsonRes['success_groups']!=null,'message':jsonRes['message']};
       }catch(e,st){
-        return {'success':false,'message':'unknown error:$e'};}
-    }));
+        r = {'success':false,'message':'unknown error:$e'};}
+      res.add(r);
+    });
 
     if(res.every((e) => e['success'])) {
       Navigator.pop(context);
