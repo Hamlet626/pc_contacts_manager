@@ -6,7 +6,7 @@ part of 'providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$gCsHash() => r'44677d75ed08dea3c5c042daa8dd363c2ef7b641';
+String _$gCsHash() => r'9143ecd7056751822b294834344b9f788e5493dc';
 
 /// See also [GCs].
 @ProviderFor(GCs)
@@ -294,7 +294,7 @@ class _MiddleMenProviderElement
   bool get containWC => (origin as MiddleMenProvider).containWC;
 }
 
-String _$wcGroupsHash() => r'd9efc6afb87e37fcf9f8cc092e583bc99e40da04';
+String _$wcGroupsHash() => r'7d38b42fd835984c3c8d278c0d54ea325b7c4485';
 
 /// See also [wcGroups].
 @ProviderFor(wcGroups)
