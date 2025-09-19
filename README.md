@@ -1,6 +1,16 @@
-# pc_wechat_manager
+# pc wechat manager
 
-A new Flutter project.
+The web app managing clients contacts and groups for case managers in Patriot Conceptions.
+## Functionalities:
+1. Status tracking:
+Search/filter/show which GC/IPs has formed case groups or in 'Leads' or 'Agreement' or 'Case' status.
+
+2. Case Wechat Groups Creation:
+Creates wechat group for those GC/IP starting a case.
+
+3. Appointments Messages Sending:
+Send appointments/meetings reminders
+
 
 ## Getting Started
 
