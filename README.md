@@ -1,4 +1,4 @@
-# pc wechat manager
+# PC Wechat Manager Tool
 
 The web app managing clients contacts and groups for case managers in Patriot Conceptions.
 ## Functionalities:
